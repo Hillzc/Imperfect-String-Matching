@@ -1,0 +1,96 @@
+- application
+	- it is helpful to be able to search for a given sequence within a genome, for example for determing relations
+	- mutations, however, exist
+	- find related genes
+	- alternately, detecting typos
+	- or in image -> text
+
+
+- formal definitions
+	- capital sigma = finite alphabet of size sigma
+	- T = Sigma*, a text of length n
+	- P = Sigma*, a pattern of length m
+	- k = maximum error allowed
+	- d = distance function
+		- d(x, y) = minimal cost of sequence of operations (delta) to transform x into y
+		- delta(a, b, i) is an operation that replaces a with b at i
+			- delta(epsilon, a, i) = insertion of a
+			- delta(a, epsilon, i) = deletion of a
+			- delta(a, b, i) = replace a with b
+	- problem: given T, P, k, and d, return all positions j such that d(P, T_{i, i+m)}) <= k
+	- note: can also use error ratio, k/m = alpha
+
+edit distance
+- multiple options
+	- simple edit distance
+		- minimum sequence of operations required to transform one sequence into the other
+	- general edit distance (things have a cost)
+	- substitutions
+		- hamming distance allows only substitutions
+	- insertions
+	- deletions
+	- transpositions (ab -> ba has cost 1 instead of 2)
+	- we will focus on simple edit distance (levenshtein distance)
+
+- naive approach
+	- how to calculate levenshtein distance
+	- hey, that looks like it can be solved with dynamic programming!
+
+- dynamic programming
+	- hey guess what! we can use (modified) local alignment to do this!
+	- matrix C(i, j) containing the min number of operations meeded to match x_{1, i} to y_{1, j}
+		- place x = P and y = T
+		- C(i, 0) = i (because we want only T to have free gaps)
+		- C(0, j) = 0 
+		- C(i, j) = if (x_i == y_j) then C(i-1, j-1)
+					else 1 + min(C(i-1, j), C(i, j-1), C(i-1, j-1))
+		- at the end, look at bottom row (i = |x|) and find values that are less than k
+	- time complexity is O(|x||y|)
+	- space complexity is O(|x||y|)
+	- can obtain sequence of transformations by backtracking
+	- it is very easy to update this to accommodate general edit distance (we did this for hw)
+
+	- can we make this any better?
+		- can improve space by only keeping track of one column at a time
+			- will not be able to backtrack, but you'll know whether you found matches
+		- can improve speed to O(kn) using diagonal searching (we know n > m)
+			- compute length of strokes (where the values along the diagonal are to be incremented)
+			- abandon each stroke once it reaches length k, and there are n diagonals
+
+	- advantage over other algorithm is that you know the alignment
+
+
+- automaton
+	- fast -- can get to O(n) after preprocessing
+	- takes up exponential space
+			- sucks
+			- i'm not going to implement it
+	- remember KMP?
+
+
+
+- bit-parallelism
+	- shift-or
+	- basically parallelizing the nfa
+	- even more easily extensible to allow for matching with sets, wild cards, and regex
+	- forms original backbone of agrep
+	- there are also attempts to bit-parallelize the dp matrix
+
+- filtering
+	- easier to rule out matches than to check for a match
+	- e.g. obviously if a letter from the pattern isn't in the text, it can't contain the pattern
+	- can't find exact position by itself, it's more like preprocessing before sending in the big boys
+	- work best on low error levels, high error makes it hard to filter things out
+
+- questions:
+	- so i have 4 types of algorithms i want to discuss
+		- dp
+		- finite automaton
+		- bit-parallelism
+		- filtering
+		- convolution/fft based
+	- for dp, i implement it, and also discuss ways it can be improved (e.g. suffix trees). how much should i actually implement?
+	- do i have to implement one of each type in code? or for something like the automaton one, is an explanation of how you'd draw it enough?
+		- to draw the graph would very quickly explode
+	- we talked about suffix trees, and i found dp-based algorithms that utilize suffix trees. if it's fundamentally the same logic as the one i have, do i need to implement suffix trees?
+	- do we need biological application?

@@ -11,23 +11,22 @@ class Bitap_Imperfect_Search():
         self.mismatch_penalty = int(mismatch_penalty)
         self.gap_penalty = int(gap_penalty)
 
-    def find_pattern(self):
-
         # create pattern mask
         if (len(self.P) > 63): # python has a max int size based on the os
             print("Pattern is too long.")
             return
 
-        pattern_mask = dict()
+        self.pattern_mask = dict()
         for letter in self.T:
-            if letter not in pattern_mask:
+            if letter not in self.pattern_mask:
                 mask = 0
                 for i in range(len(self.P)):
                     mask |= (int(letter == self.P[i]) << i)
-                pattern_mask[letter] = mask
-        # for letter in pattern_mask:
-        #     print(letter, ":", bin(pattern_mask[letter]))
+                self.pattern_mask[letter] = mask
+        # for letter in self.pattern_mask:
+        #     print(letter, ":", bin(self.pattern_mask[letter]))
 
+    def find_pattern(self):
         # initialize R
         # R[d] stores all possible matches with up to d errors
         R = np.zeros([self.max_distance+1, len(self.T)+1], dtype=np.int64)
@@ -38,12 +37,12 @@ class Bitap_Imperfect_Search():
         found_locations = set()
         for i in range(1, len(self.T)+1):
             # R[0] is with no errors
-            R[0, i] = (R[0, i-1] << 1 | 1) & pattern_mask[self.T[i-1]]
+            R[0, i] = (R[0, i-1] << 1 | 1) & self.pattern_mask[self.T[i-1]]
             if R[0, i] >> (len(self.P)-1) == 1:
                 found_locations.add(i-len(self.P))
 
             for d in range(1, self.max_distance+1):
-                R[d, i] = (R[d, i-1] << 1 | 1) & pattern_mask[self.T[i-1]] \
+                R[d, i] = (R[d, i-1] << 1 | 1) & self.pattern_mask[self.T[i-1]] \
                     | ((R[d-1, i-1] | R[d-1, i]) << 1 | 1) \
                         | R[d-1, i-1]
                 if(R[d, i] >> len(self.P)-1) == 1:

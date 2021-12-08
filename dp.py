@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+import re
 
 class Node():
     def __init__(self, value, parents=[]):
@@ -8,7 +9,7 @@ class Node():
 
 
 class DP_Imperfect_Search():
-    def __init__(self, P, T, max_distance, mismatch_penalty=1, gap_penalty=1):
+    def __init__(self, P, T, max_distance, mismatch_penalty=1, gap_penalty=1, print_alignment=True):
 
         self.P = P
         self.T = T
@@ -16,6 +17,8 @@ class DP_Imperfect_Search():
 
         self.mismatch_penalty = int(mismatch_penalty)
         self.gap_penalty = int(gap_penalty)
+
+        self.print_alignment = print_alignment
 
         self.alignment_matrix = np.empty([len(self.P)+1, len(self.T)+1], dtype=Node)
 
@@ -37,7 +40,7 @@ class DP_Imperfect_Search():
         self.fill_alignment_matrix()
         #self.print_alignment_matrix()
 
-        # find where to backtrack		
+        # find where to backtrack	
         bottom_row = self.alignment_matrix[len(self.P), :]
         indices = []
         for j in range(len(bottom_row)):
@@ -45,11 +48,12 @@ class DP_Imperfect_Search():
             if node.value <= self.max_distance:
                 indices.append(j)
 
-        # dfs to find all paths
+        # dfs to find all paths (and their respective alignments)
+        self.found_locations = set()
         for index in indices:
             self.backtrack(index)
         
-        return
+        return self.found_locations
 
     def initialize_alignment(self):
         self.alignment_matrix[0,0] = Node(0, [])
@@ -102,9 +106,15 @@ class DP_Imperfect_Search():
 
 
         if len(parents) == 0:
-            print(aligned_T)
-            print(aligned_P)
-            print()
+            # to make this compatible with the other search algorithms, we need the index in T of the the alignment
+            # we can do this by finding the indices of the first non "-" character in aligned_P and the number of "-" in aligned_T
+            T_index = re.search(r"[^-]", aligned_P).start()
+            num_insertions = aligned_T.count("-")
+            self.found_locations.add(T_index - num_insertions)
+            if(self.print_alignment):
+                print(aligned_T)
+                print(aligned_P)
+                print()
             return
 
         for parent in parents:

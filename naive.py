@@ -45,10 +45,7 @@ class Naive_Imperfect_Search():
             if levenshtein_distance(self.P, self.T[i: i+len(self.P)]) <= self.max_distance:
                 found_locations.append(i)
 
-        for location in found_locations:
-            print("-"*-location + self.T)
-            print("-"*location + self.P + "-"*(len(self.T) - location - len(self.P)))
-            print()
+        return found_locations
 
 def main():
     sequences_path = "test.txt"

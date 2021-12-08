@@ -18,9 +18,6 @@ class Bitap_Imperfect_Search():
             print("Pattern is too long.")
             return
 
-        print(self.P)
-
-        print("pattern mask")
         pattern_mask = dict()
         for letter in self.T:
             if letter not in pattern_mask:
@@ -28,21 +25,16 @@ class Bitap_Imperfect_Search():
                 for i in range(len(self.P)):
                     mask |= (int(letter == self.P[i]) << i)
                 pattern_mask[letter] = mask
-        for letter in pattern_mask:
-            print(letter, ":", bin(pattern_mask[letter]))
+        # for letter in pattern_mask:
+        #     print(letter, ":", bin(pattern_mask[letter]))
 
         # initialize R
         # R[d] stores all possible matches with up to d errors
-        print("\nR[d, 0]")
         R = np.zeros([self.max_distance+1, len(self.T)+1], dtype=np.int64)
         for d in range(1, self.max_distance+1):
             R[d, 0] = R[d-1, 0] << 1 | 1
-        
-        for col in R:
-            print(bin(col[0]))
 
         # iterate
-        print("\n")
         found_locations = set()
         for i in range(1, len(self.T)+1):
             # R[0] is with no errors
@@ -57,10 +49,7 @@ class Bitap_Imperfect_Search():
                 if(R[d, i] >> len(self.P)-1) == 1:
                     found_locations.add(i-len(self.P))
 
-        for location in found_locations:
-            print("-"*-location + self.T)
-            print("-"*location + self.P + "-"*(len(self.T) - location - len(self.P)))
-            print()
+        return found_locations
 
 def main():
     sequences_path = "test.txt"

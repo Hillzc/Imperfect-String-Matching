@@ -21,23 +21,19 @@ def main():
     if sys.argv[1] == "NAIVE":
         searcher = Naive_Imperfect_Search(p, t, max_distance)
     elif sys.argv[1] == "DP":
-        searcher = DP_Imperfect_Search(p, t, max_distance, print_alignment=False)
+        searcher = DP_Imperfect_Search(p, t, max_distance, print_alignment=True)
     elif sys.argv[1] == "BITAP":
         searcher = Bitap_Imperfect_Search(p, t, max_distance)
     
-    repeats = 1
-    t0 = time()
-    for i in range(repeats):
-        found_locations = searcher.find_pattern()
-    t1 = time()
-    time_taken = (t1 - t0)/repeats
 
-    print("time elapsed: {}".format(time_taken))
 
-    for location in found_locations:
-            print("-"*-location + t)
-            print("-"*location + p + "-"*(len(t) - location - len(p)))
-            print()
+    found_locations = searcher.find_pattern()
+
+    if sys.argv[1] != "DP": # dynamic programming implememtation does backtracking and prints the alignments itself
+        for location in found_locations:
+                print("-"*-location + t)
+                print("-"*location + p + "-"*(len(t) - location - len(p)))
+                print()
 
     return
 

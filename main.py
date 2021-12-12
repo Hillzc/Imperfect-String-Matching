@@ -1,13 +1,16 @@
+from re import search
 import sys
 from time import time
+from filter import Filter_Imperfect_Search, init_searcher
 from naive import Naive_Imperfect_Search
 from dp import DP_Imperfect_Search
 from bitap import Bitap_Imperfect_Search
 
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in {"NAIVE", "DP", "BITAP"}:
-        print("USAGE: python main.py <Algorithm Type>")
-        print("<Algorithm Type>: [NAIVE/DP/BITAP]")
+    if len(sys.argv) < 2 or sys.argv[1] not in {"Naive", "DP", "Bitap"}:
+        print("USAGE: python main.py <Algorithm Type> <Filter>")
+        print("<Algorithm Type>: [Naive/DP/Bitap]")
+        print("<Filter>: [ON/OFF]")
         exit()
 
     sequences_path = "test.txt"
@@ -18,12 +21,10 @@ def main():
         t = sequences_file.readline().rstrip().upper()
         max_distance = int(sequences_file.readline().rstrip())
 
-    if sys.argv[1] == "NAIVE":
-        searcher = Naive_Imperfect_Search(p, t, max_distance)
-    elif sys.argv[1] == "DP":
-        searcher = DP_Imperfect_Search(p, t, max_distance, print_alignment=True)
-    elif sys.argv[1] == "BITAP":
-        searcher = Bitap_Imperfect_Search(p, t, max_distance)
+    if len(sys.argv) == 3 and sys.argv[2] == "ON":
+        searcher = Filter_Imperfect_Search(p, t, max_distance, searcher_name=sys.argv[1])
+    else:
+        searcher = init_searcher(sys.argv[1], p, t, max_distance)
     
 
 

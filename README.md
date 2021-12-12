@@ -1,4 +1,4 @@
-# Final-Project
+# Imperfect String Matching
  
 An implementation of few different imperfect string matching algorithms. 
 
